@@ -81,27 +81,10 @@ class Assignment(db.Model):
         assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
         assertions.assert_valid(grade in [GradeEnum.A, GradeEnum.B, GradeEnum.C, GradeEnum.D], 'Invalid grade')
         assertions.assert_valid(assignment.state != AssignmentStateEnum.DRAFT, 'A draft assignment cannot be graded')
-        # assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id or auth_principal.principal_id,
-        #                         'This assignment was not submitted to you')
-        # assertions.assert_valid(assignment.state == AssignmentStateEnum.SUBMITTED, 'only a submitted assignment can be graded')
-        #     # Allow grading if the assignment is in the SUBMITTED or GRADED state
-        # assertions.assert_valid(
-        #     assignment.state in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED],
-        #     'Only a submitted or already graded assignment can be graded'
-        # )
 
         if auth_principal.teacher_id is not None:
             assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id, 'This assignment was not submitted to you')
             assertions.assert_valid(assignment.state == AssignmentStateEnum.SUBMITTED, 'only a submitted assignment can be graded')
-        # elif auth_principal.principal_id:
-        #     assertions.assert_valid(
-        #         assignment.state in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED],
-        #         'Only a submitted or already graded assignment can be graded'
-        #     )
-        #     assertions.assert_valid(
-        #         assignment.state != AssignmentStateEnum.DRAFT,
-        #         'A draft assignment cannot be graded by the principal'
-        #     )
 
         assignment.grade = GradeEnum(grade)
         assignment.state = AssignmentStateEnum.GRADED
