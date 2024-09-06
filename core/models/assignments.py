@@ -79,8 +79,31 @@ class Assignment(db.Model):
         assignment = Assignment.get_by_id(_id)
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
+        assertions.assert_valid(grade in [GradeEnum.A, GradeEnum.B, GradeEnum.C, GradeEnum.D], 'Invalid grade')
+        assertions.assert_valid(assignment.state != AssignmentStateEnum.DRAFT, 'A draft assignment cannot be graded')
+        # assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id or auth_principal.principal_id,
+        #                         'This assignment was not submitted to you')
+        # assertions.assert_valid(assignment.state == AssignmentStateEnum.SUBMITTED, 'only a submitted assignment can be graded')
+        #     # Allow grading if the assignment is in the SUBMITTED or GRADED state
+        # assertions.assert_valid(
+        #     assignment.state in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED],
+        #     'Only a submitted or already graded assignment can be graded'
+        # )
 
-        assignment.grade = grade
+        if auth_principal.teacher_id is not None:
+            assertions.assert_valid(assignment.teacher_id == auth_principal.teacher_id, 'This assignment was not submitted to you')
+            assertions.assert_valid(assignment.state == AssignmentStateEnum.SUBMITTED, 'only a submitted assignment can be graded')
+        # elif auth_principal.principal_id:
+        #     assertions.assert_valid(
+        #         assignment.state in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED],
+        #         'Only a submitted or already graded assignment can be graded'
+        #     )
+        #     assertions.assert_valid(
+        #         assignment.state != AssignmentStateEnum.DRAFT,
+        #         'A draft assignment cannot be graded by the principal'
+        #     )
+
+        assignment.grade = GradeEnum(grade)
         assignment.state = AssignmentStateEnum.GRADED
         db.session.flush()
 
@@ -93,3 +116,7 @@ class Assignment(db.Model):
     @classmethod
     def get_assignments_by_teacher(cls, teacher_id):
         return cls.filter(cls.teacher_id == teacher_id).all()
+    
+    @classmethod
+    def get_submitted_and_graded_assignments(cls):
+        return cls.filter(cls.state.in_([AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED])).all()
