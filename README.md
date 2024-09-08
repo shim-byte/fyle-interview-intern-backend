@@ -56,3 +56,25 @@ pytest -vvv -s tests/
 # pytest --cov
 # open htmlcov/index.html
 ```
+
+# Dockerized Application
+
+## Prerequisites
+
+- Docker
+- Docker Compose
+
+## Building the Docker Image
+
+To build the Docker image, run the following command:
+
+```sh
+docker-compose build
+```
+
+## Running the Application
+
+```sh
+docker-compose up
+```
+
