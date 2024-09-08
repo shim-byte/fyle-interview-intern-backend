@@ -1,5 +1,15 @@
 from core.models.assignments import AssignmentStateEnum, GradeEnum
 
+def test_home(client, h_principal):
+    response = client.get('/', headers=h_principal)
+    assert response.status_code == 200
+    assert response.json['status'] == 'ready'
+
+
+def test_invalid_url(client, h_principal):
+    response = client.get('/invalid', headers=h_principal)
+    assert response.status_code == 404
+
 
 def test_get_assignments(client, h_principal):
     response = client.get(
